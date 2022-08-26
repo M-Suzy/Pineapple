@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class StringMapper {
 
     private String text;
-    private static final String REGEX = "(\\{\\{)[^ ]*(\\}\\})";
+    private final static String REGEX = "(\\{\\{)[^ ]*(\\}\\})";
 
     private final Map<String, String> map;
 
@@ -23,10 +23,14 @@ public class StringMapper {
 
     public StringMapper(@NotNull final String text, @NotNull final Map<String, String> map) {
         this.text = text;
+        for (String key : map.keySet()) {
+            validateKeys(key);
+        }
         this.map = map;
     }
 
     public void setMapping(@NotNull final String key, @NotNull final String value) {
+        validateKeys(key);
         if (map.containsKey(key)) {
             log.warn(String.format("Current mapping already contains key '%s' and value '%s', replacing old value with new value as '%s'", key, map.get(key), value));
         } else {
@@ -59,5 +63,11 @@ public class StringMapper {
             return null;
         }
         return map.get(netPlaceholder);
+    }
+
+    private void validateKeys(String key) {
+        if (key.contains(" ")) {
+            throw new IllegalArgumentException(String.format("The key can't contain space (' '), actual key is %s", key));
+        }
     }
 }
